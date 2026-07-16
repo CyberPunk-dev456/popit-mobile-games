@@ -2,32 +2,22 @@ name: Build Pop-It APK
 
 on:
   push:
-    branches: [ main, master ]  # Triggers the build whenever you push to main
-  workflow_dispatch:            # Allows you to trigger the build manually via the UI
+    branches: [ main, master ]
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Build APK with Buildozer
+      uses: subfuzion/kivy-buildozer-action@v1
       with:
-        python-version: '3.11'
-
-    - name: Install System Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libsqlite3-dev lld libffi-dev libssl-dev autoconf automake libtool pkg-config zlib1g-dev
-
-    - name: Build APK with Buildozer Action
-      uses: ArtemSBulgakov/buildozer-action@v1    # <-- Fixed here (ArtemSBulgakov)
-      with:
-        command: yes | buildozer android debug    # Extra trick: 'yes |' automatically accepts Android licenses
-        buildozer_version: stable
+        command: buildozer android debug
+        # This action handles the system dependencies automatically inside its own pre-built container
 
     - name: Upload Finished APK
       uses: actions/upload-artifact@v4
