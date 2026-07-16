@@ -24,9 +24,9 @@ jobs:
         sudo apt-get install -y libsqlite3-dev lld libffi-dev libssl-dev autoconf automake libtool pkg-config zlib1g-dev
 
     - name: Build APK with Buildozer Action
-      uses: ArtemisGis/buildozer-action@v1
+      uses: ArtemSBulgakov/buildozer-action@v1    # <-- Fixed here (ArtemSBulgakov)
       with:
-        workdir: .
+        command: yes | buildozer android debug    # Extra trick: 'yes |' automatically accepts Android licenses
         buildozer_version: stable
 
     - name: Upload Finished APK
