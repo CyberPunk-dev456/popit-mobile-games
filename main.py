@@ -9,11 +9,33 @@ class PopBubble(ButtonBehavior, Image):
         super(PopBubble, self).__init__(**kwargs)
         self.source = 'bubble_up.png'
         self.is_popped = False
-        self.sound = SoundLoader.load('pop.mp3')  # Load the pop sound effect
+        self.sound = SoundLoader.load('pop.ogg')
         
-        # Sizing the bubble relative to the main red board frame container
-        self.size_hint = (0.13, 0.13)  
+        # 1. Turn off automatic layout stretching for size
+        self.size_hint = (None, None)  
+        
+        # 2. Keep the position relative to the grid
         self.pos_hint = {'center_x': rel_x, 'center_y': rel_y}
+        
+        # 3. Listen for whenever the parent overlay changes size (on rotation/scaling)
+        self.bind(parent=self.bind_to_parent)
+
+    def bind_to_parent(self, instance, parent):
+        if parent:
+            # Whenever the red board overlay changes size, recalculate bubble size
+            parent.bind(size=self.match_hole_scale)
+            self.match_hole_scale(parent, parent.size)
+
+    def match_hole_scale(self, parent, parent_size):
+        # Grab the total width of the red board container
+        board_width = parent_size[0]
+        
+        # Calculate a perfect square size based purely on the board's width.
+        # Change 0.14 (14%) up or down until it perfectly plugs your holes!
+        bubble_dimension = board_width * 0.14  
+        
+        # Apply the identical width and height
+        self.size = (bubble_dimension, bubble_dimension)
 
     def on_press(self):
         if not self.is_popped:
@@ -59,7 +81,7 @@ class PopItGame(FloatLayout):
         self.add_widget(self.bubble_overlay)
         
         # 4. Perfectly uniform 5x5 Grid coordinates (Adjust offsets if needed)
-        # Based on your image, let's distribute 5 rows and 5 columns evenly
+        # Based on your image, let's distribute 5 rows and 6 columns evenly
         columns = [0.12, 0.27, 0.42, 0.57, 0.72, 0.87]
         rows =    [0.89, 0.688, 0.486, 0.284, 0.082]
         
