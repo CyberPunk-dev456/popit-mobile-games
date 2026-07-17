@@ -9,12 +9,10 @@ class PopBubble(ButtonBehavior, Image):
         super(PopBubble, self).__init__(**kwargs)
         self.source = 'bubble_up.png'
         self.is_popped = False
-        self.sound = SoundLoader.load('pop_sound.wav')
+        self.sound = SoundLoader.load('pop.mp3')  # Load the pop sound effect
         
-        # Define the bubble's size relative to the parent board container
-        self.size_hint = (0.105, 0.16)  # Adjust this value to scale your bubble size
-        
-        # Position the bubble relative to the parent coordinates
+        # Sizing the bubble relative to the main red board frame container
+        self.size_hint = (0.13, 0.13)  
         self.pos_hint = {'center_x': rel_x, 'center_y': rel_y}
 
     def on_press(self):
@@ -41,36 +39,39 @@ class PopItGame(FloatLayout):
         )
         self.add_widget(self.background)
         
-        # 2. Main Toy Frame Container (Anchored in the center)
+        # 2. Main Toy Frame (Enforce keep_ratio so it doesn't stretch weirdly)
         self.toy_frame = Image(
             source='popit_maine.png',
-            size_hint=(0.8, 0.8),  # Takes up 80% of the screen space
-            pos_hint={'center_x': 0.5, 'center_y': 0.5}
+            size_hint=(0.8, 0.8),
+            pos_hint={'center_x': 0.5, 'center_y': 0.5},
+            keep_ratio=True,
+            allow_stretch=True
         )
         self.add_widget(self.toy_frame)
         
-        # 3. Interactive Bubble Mapping Container
-        # To map coordinates cleanly, we anchor this invisible canvas directly over our toy frame
+        # 3. Interactive Bubble Overlay Locked to Toy Frame Scale
         self.bubble_overlay = FloatLayout(
-            size_hint=(0.8, 0.8),
+            size_hint=(None, None),  # Turn off automatic stretching
             pos_hint={'center_x': 0.5, 'center_y': 0.5}
         )
+        # Bind the overlay size to match the exact drawn image texture size
+        self.toy_frame.bind(norm_image_size=self.update_overlay_size)
         self.add_widget(self.bubble_overlay)
         
-        # 4. Define the coordinate grid map matching your holes
-        # (0.5, 0.5) is the absolute center of the frame. 
-        # Update these layout coordinate pairs to line up with your texture design!
-        hole_coordinates = [
-            (0.22, 0.89), (0.33, 0.89), (0.44, 0.89), (0.55, 0.89), (0.66, 0.89), (0.77, 0.89),  # Row 1 holes
-            (0.22, 0.688), (0.33, 0.688), (0.44, 0.688), (0.55, 0.688), (0.66, 0.688), (0.77, 0.688),  # Row 2 holes
-            (0.22, 0.486), (0.33, 0.486), (0.44, 0.486), (0.55, 0.486), (0.66, 0.486), (0.77, 0.486),  # Row 3 holes
-            (0.22, 0.284), (0.33, 0.284), (0.44, 0.284), (0.55, 0.284), (0.66, 0.284), (0.77, 0.284),   # Row 4 holes
-            (0.22, 0.082), (0.33, 0.082), (0.44, 0.082), (0.55, 0.082), (0.66, 0.082), (0.77, 0.082)   # Row 5 holes
-        ]
+        # 4. Perfectly uniform 5x5 Grid coordinates (Adjust offsets if needed)
+        # Based on your image, let's distribute 5 rows and 5 columns evenly
+        columns = [0.12, 0.27, 0.42, 0.57, 0.72, 0.87]
+        rows =    [0.89, 0.688, 0.486, 0.284, 0.082]
         
-        for x_coord, y_coord in hole_coordinates:
-            bubble = PopBubble(rel_x=x_coord, rel_y=y_coord)
-            self.bubble_overlay.add_widget(bubble)
+        for y_coord in rows:
+            for x_coord in columns:
+                bubble = PopBubble(rel_x=x_coord, rel_y=y_coord)
+                self.bubble_overlay.add_widget(bubble)
+
+    def update_overlay_size(self, instance, value):
+        # 'norm_image_size' contains the exact width and height of the image on screen
+        # after keeping its aspect ratio. We force our layout to match it exactly.
+        self.bubble_overlay.size = value
 
 class PopItApp(App):
     def build(self):
