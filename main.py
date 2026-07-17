@@ -17,7 +17,7 @@ class PopBubble(ButtonBehavior, Image):
         sound_path = os.path.join(app_dir, 'pop_sound.ogg')
         
         # Load the sound cleanly
-        self.sound = SoundLoader.load(sound_path
+        self.sound = SoundLoader.load(sound_path)
         
         # 1. Turn off automatic layout stretching for size
         self.size_hint = (None, None)  
