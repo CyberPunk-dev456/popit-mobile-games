@@ -32,7 +32,7 @@ class PopBubble(ButtonBehavior, Image):
         
         # Calculate a perfect square size based purely on the board's width.
         # Change 0.14 (14%) up or down until it perfectly plugs your holes!
-        bubble_dimension = board_width * 0.14  
+        bubble_dimension = board_width * 0.16  
         
         # Apply the identical width and height
         self.size = (bubble_dimension, bubble_dimension)
