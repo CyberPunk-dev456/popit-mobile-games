@@ -9,7 +9,15 @@ class PopBubble(ButtonBehavior, Image):
         super(PopBubble, self).__init__(**kwargs)
         self.source = 'bubble_up.png'
         self.is_popped = False
-        self.sound = SoundLoader.load('pop.ogg')
+        
+        # Determine the absolute directory where your main.py is running
+        app_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        # Combine the path safely to target the .ogg file
+        sound_path = os.path.join(app_dir, 'pop_sound.ogg')
+        
+        # Load the sound cleanly
+        self.sound = SoundLoader.load(sound_path
         
         # 1. Turn off automatic layout stretching for size
         self.size_hint = (None, None)  
