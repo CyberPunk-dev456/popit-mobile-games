@@ -10,39 +10,31 @@ class PopBubble(ButtonBehavior, Image):
         self.source = 'bubble_up.png'
         self.is_popped = False
         
-        # Determine the absolute directory where your main.py is running
+        # Absolute path for your audio fix
+        import os
         app_dir = os.path.dirname(os.path.abspath(__file__))
+        self.sound = SoundLoader.load(os.path.join(app_dir, 'pop_sound.ogg'))
         
-        # Combine the path safely to target the .ogg file
-        sound_path = os.path.join(app_dir, 'pop_sound.ogg')
-        
-        # Load the sound cleanly
-        self.sound = SoundLoader.load(sound_path)
-        
-        # 1. Turn off automatic layout stretching for size
+        # Keep layout configurations
         self.size_hint = (None, None)  
-        
-        # 2. Keep the position relative to the grid
         self.pos_hint = {'center_x': rel_x, 'center_y': rel_y}
-        
-        # 3. Listen for whenever the parent overlay changes size (on rotation/scaling)
-        self.bind(parent=self.bind_to_parent)
 
-    def bind_to_parent(self, instance, parent):
+    # This is a built-in Kivy trigger that fires automatically 
+    # the moment 'self.add_widget(bubble)' happens in your game loop!
+    def on_parent(self, instance, parent):
         if parent:
-            # Whenever the red board overlay changes size, recalculate bubble size
+            # Bind to the board's size changes (resizing, rotation)
             parent.bind(size=self.match_hole_scale)
+            # Force an immediate calculation right now
             self.match_hole_scale(parent, parent.size)
 
     def match_hole_scale(self, parent, parent_size):
-        # Grab the total width of the red board container
         board_width = parent_size[0]
         
-        # Calculate a perfect square size based purely on the board's width.
-        # Change 0.14 (14%) up or down until it perfectly plugs your holes!
+        # Change this 0.16 up or down. Because of 'on_parent', 
+        # changing this will instantly reflect on your phone screen now!
         bubble_dimension = board_width * 0.16  
         
-        # Apply the identical width and height
         self.size = (bubble_dimension, bubble_dimension)
 
     def on_press(self):
